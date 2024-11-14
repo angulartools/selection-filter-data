@@ -3,5 +3,6 @@
   "dest": "../../dist/selection-filter-data",
   "lib": {
     "entryFile": "src/public-api.ts"
-  }
+  },
+  "allowedNonPeerDependencies": ["@angulartoolsdr/shared-utils"]
 }
