@@ -6,7 +6,7 @@ import { MatIcon } from '@angular/material/icon';
 import { MatListOption, MatSelectionList } from '@angular/material/list';
 import { MatMenu, MatMenuTrigger } from '@angular/material/menu';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { SafePipe } from 'shared-utils';
+import { SafePipe } from '@angulartoolsdr/shared-utils';
 
 @Component({
   selector: 'lib-selection-filter-data',
