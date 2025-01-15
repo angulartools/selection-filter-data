@@ -9,10 +9,9 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { SafePipe } from '@angulartoolsdr/shared-utils';
 
 @Component({
-  selector: 'lib-selection-filter-data',
-  templateUrl: './selection-filter-data.component.html',
+    selector: 'lib-selection-filter-data',
+    templateUrl: './selection-filter-data.component.html',
     styleUrls: ['./selection-filter-data.component.css'],
-    standalone: true,
     imports: [TranslateModule, MatIconButton, MatMenuTrigger, MatButton, MatBadge, MatIcon, MatMenu, MatDivider, MatSelectionList, MatListOption, TranslateModule, SafePipe]
 })
 export class SelectionFilterDataComponent {
