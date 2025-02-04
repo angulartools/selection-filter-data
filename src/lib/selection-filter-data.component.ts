@@ -5,14 +5,14 @@ import { MatDivider } from '@angular/material/divider';
 import { MatIcon } from '@angular/material/icon';
 import { MatListOption, MatSelectionList } from '@angular/material/list';
 import { MatMenu, MatMenuTrigger } from '@angular/material/menu';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslationPipe, TranslationService } from '@angulartoolsdr/translation';
 import { SafePipe } from '@angulartoolsdr/shared-utils';
 
 @Component({
     selector: 'lib-selection-filter-data',
     templateUrl: './selection-filter-data.component.html',
     styleUrls: ['./selection-filter-data.component.css'],
-    imports: [TranslateModule, MatIconButton, MatMenuTrigger, MatButton, MatBadge, MatIcon, MatMenu, MatDivider, MatSelectionList, MatListOption, TranslateModule, SafePipe]
+    imports: [MatIconButton, MatMenuTrigger, MatButton, MatBadge, MatIcon, MatMenu, MatDivider, MatSelectionList, MatListOption, TranslationPipe, SafePipe]
 })
 export class SelectionFilterDataComponent {
   @Input() width = 'inherit';
@@ -94,7 +94,7 @@ export class SelectionFilterDataComponent {
   @ViewChild('selectable') selectable: MatSelectionList;
   @ViewChild(MatMenuTrigger) trigger: MatMenuTrigger;
 
-  constructor(protected translate: TranslateService){}
+  constructor(protected translate: TranslationService){}
 
   openMenu() {
     if (this.trigger.menuOpen) {
