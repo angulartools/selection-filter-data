@@ -1,6 +1,6 @@
 {
   "name": "@angulartoolsdr/selection-filter-data",
-  "version": "20.0.0",
+  "version": "20.0.6",
   "peerDependencies": {
     "@angular/common": "20.0.3",
     "@angular/core": "20.0.3",
