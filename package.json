@@ -1,13 +1,13 @@
 {
   "name": "@angulartoolsdr/selection-filter-data",
-  "version": "20.2.1",
+  "version": "20.2.2",
   "peerDependencies": {
-    "@angular/common": "20.2.1",
-    "@angular/core": "20.2.1",
-    "@angulartoolsdr/translation": "20.2.1"
+    "@angular/common": "20.2.2",
+    "@angular/core": "20.2.2",
+    "@angulartoolsdr/translation": "20.2.2"
   },
   "dependencies": {
-    "@angulartoolsdr/shared-utils": "20.2.1",
+    "@angulartoolsdr/shared-utils": "20.2.2",
     "tslib": "^2.8.1"
   },
   "sideEffects": false
