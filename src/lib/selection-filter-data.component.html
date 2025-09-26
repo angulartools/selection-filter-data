@@ -1,90 +1,89 @@
 @if (multiple && selecionados.length === 0 && label === null) {
-    <button class="hover-primary xsmall-icon-button"
-      type="button" mat-icon-button [matMenuTriggerFor]="menu" [disabled]="disabled || listaCompleta?.length === 0" (click)="openMenu()">
-      <i style="font-size: 12px" class="fal fa-filter"></i>
-    </button>
-  }
-  @if (multiple && selecionados.length > 0  && label === null) {
-    <button class="hover-primary xsmall-icon-button" type="button" mat-icon-button
-      [matMenuTriggerFor]="menu" [disabled]="disabled || listaCompleta?.length === 0" (click)="openMenu()">
-      <i style="font-size: 12px" class="fas fa-filter"></i>
-    </button>
-  }
-  @if (label !== null) {
-    <button class="menuTrigger" type="button" mat-flat-button [matMenuTriggerFor]="menu" [disabled]="disabled || listaCompleta?.length === 0">
-      @if (label !== null) {
-        <span matBadgeSize="small" [matBadgeHidden]="selecionados?.length === 0" [matBadge]="multiple ? selecionados?.length : null">{{label}}</span>
-      }
-      @if (label !== null) {
-        <mat-icon>arrow_drop_down</mat-icon>
-      }
-    </button>
-  }
-  @if (!multiple && selecionados.length > 0) {
-    <div style="font-size: 12px; text-align: center; position: relative; top: -10px; margin-left: -15px;" class="text-muted">
-      {{selecionados[0][campo] | translate}}
-    </div>
-  }
-  
-  <mat-menu #menu="matMenu" [style.width]="width">
-    <div [style.width]="width" [style.max-height]="height" style="overflow: auto" (click)="$event.stopPropagation();">
-  
-      <span [style.width]="width">
-        <input style="width: 100%;" class="pesquisaLista" placeholder="{{'PESQUISAR_LISTA' | translate }}"
-          [(value)]="sFiltro" (keyup)="changeInput($event)" />
-      </span>
-  
-      <mat-divider></mat-divider>
-  
-      @if (multiple) {
-        <mat-selection-list>
-          @if (lista?.length > 1 && lista?.length <= maxMultipleSelected) {
-            <mat-list-option checkboxPosition="before"
-              (click)="selecionarTodos()" [value]="''" [selected]="selectable?.selectedOptions?.selected?.length === lista?.length">
-              <span style="font-weight: 600; font-size: .8rem;">{{'SELECIONAR_TODOS' | translate }}</span>
-            </mat-list-option>
-          }
-        </mat-selection-list>
-      }
-  
-      @if (multiple) {
-        <mat-divider></mat-divider>
-      }
-  
-      @if (loadList) {
-        <mat-selection-list #selectable [multiple]="!disableClear">
-          @for (item of lista; track item) {
-            <mat-list-option togglePosition="before" [selected]="item.selected" [value]="item"
-              (click)="selecionarItem(item, item.selected)" [disabled]="disabled">
-              @if (item[campo] === undefined || item[campo] === null || item[campo] === '') {
-                <span style="font-size: .8rem;">- {{'EM_BRANCO' | translate }} -</span>
-              }
-              @if (item[campo] !== undefined && item[campo] !== null && item[campo] !== '' &&
-                (item.tipo === undefined || item.tipo === null) &&
-                (!item.translate)) {
-                <span style="font-size: .8rem;">
-                  {{item[campo] | translate }}
-                </span>
-              }
-              @if (item.tipo === 'html' && item[campo] !== undefined && item[campo] !== null && item[campo] !== '') {
-                <span [innerHTML]="item[campo] | safe: 'html'"></span>
-              }
-              @if (item.translate && item[campo] !== undefined && item[campo] !== null && item[campo] !== '') {
-                <span style="font-size: .8rem;">{{item[campo] | translate}}</span>
-              }
-            </mat-list-option>
-          }
-        </mat-selection-list>
-      }
-    </div>
-    @if (showButtons && listaCompleta?.length > 0) {
+  <button class="hover-primary xsmall-icon-button"
+    type="button" mat-icon-button [matMenuTriggerFor]="menu" [disabled]="disabled || listaCompleta?.length === 0" (click)="openMenu()">
+    <i style="font-size: 12px" class="fal fa-filter"></i>
+  </button>
+}
+@if (multiple && selecionados.length > 0  && label === null) {
+  <button class="hover-primary xsmall-icon-button" type="button" mat-icon-button
+    [matMenuTriggerFor]="menu" [disabled]="disabled || listaCompleta?.length === 0" (click)="openMenu()">
+    <i style="font-size: 12px" class="fas fa-filter"></i>
+  </button>
+}
+@if (label !== null) {
+  <button class="menuTrigger" type="button" mat-flat-button [matMenuTriggerFor]="menu" [disabled]="disabled || listaCompleta?.length === 0">
+    @if (label !== null) {
+      <span matBadgeSize="small" [matBadgeHidden]="selecionados?.length === 0" [matBadge]="multiple ? selecionados?.length : null">{{label}}</span>
+    }
+    @if (label !== null) {
+      <mat-icon>arrow_drop_down</mat-icon>
+    }
+  </button>
+}
+@if (!multiple && selecionados.length > 0) {
+  <div style="font-size: 12px; text-align: center; position: relative; top: -10px; margin-left: -15px;" class="text-muted">
+    {{selecionados[0][campo] | translate}}
+  </div>
+}
+
+<mat-menu #menu="matMenu" [style.width]="width">
+  <div [style.width]="width" [style.max-height]="height" style="overflow: auto" (click)="$event.stopPropagation();">
+
+    <span [style.width]="width">
+      <input style="width: 100%;" class="pesquisaLista" placeholder="{{'PESQUISAR_LISTA' | translate }}"
+        [(value)]="sFiltro" (keyup)="changeInput($event)" />
+    </span>
+
+    <mat-divider></mat-divider>
+
+    @if (multiple) {
+      <mat-selection-list>
+        @if (lista?.length > 1 && lista?.length <= maxMultipleSelected) {
+          <mat-list-option checkboxPosition="before"
+            (click)="selecionarTodos()" [value]="''" [selected]="selectable?.selectedOptions?.selected?.length === lista?.length">
+            <span style="font-weight: 600; font-size: .8rem;">{{'SELECIONAR_TODOS' | translate }}</span>
+          </mat-list-option>
+        }
+      </mat-selection-list>
+    }
+
+    @if (multiple) {
       <mat-divider></mat-divider>
     }
-    @if (showButtons && listaCompleta?.length > 0) {
-      <div style="width: 100%; display: flex; justify-content: space-between; padding: 3px;">
-        <button mat-stroked-button color="accent" (click)="cancelar()">{{'CANCELAR' | translate }}</button>
-        <button mat-raised-button color="primary" (click)="onConfirm()">{{'OK' | translate }}</button>
-      </div>
+
+    @if (loadList) {
+      <mat-selection-list #selectable [(ngModel)]="selecionados" [multiple]="!disableClear">
+        @for (item of lista; track item) {
+          <mat-list-option togglePosition="before" [value]="item"
+            (click)="selecionarItem(item, item.selected)" [disabled]="disabled">
+            @if (item[campo] === undefined || item[campo] === null || item[campo] === '') {
+              <span style="font-size: .8rem;">- {{'EM_BRANCO' | translate }} -</span>
+            }
+            @if (item[campo] !== undefined && item[campo] !== null && item[campo] !== '' &&
+              (item.tipo === undefined || item.tipo === null) &&
+              (!item.translate)) {
+              <span style="font-size: .8rem;">
+                {{item[campo] | translate }}
+              </span>
+            }
+            @if (item.tipo === 'html' && item[campo] !== undefined && item[campo] !== null && item[campo] !== '') {
+              <span [innerHTML]="item[campo] | safe: 'html'"></span>
+            }
+            @if (item.translate && item[campo] !== undefined && item[campo] !== null && item[campo] !== '') {
+              <span style="font-size: .8rem;">{{item[campo] | translate}}</span>
+            }
+          </mat-list-option>
+        }
+      </mat-selection-list>
     }
-  </mat-menu>
-  
+  </div>
+  @if (showButtons && listaCompleta?.length > 0) {
+    <mat-divider></mat-divider>
+  }
+  @if (showButtons && listaCompleta?.length > 0) {
+    <div style="width: 100%; display: flex; justify-content: space-between; padding: 3px;">
+      <button mat-stroked-button color="accent" (click)="cancelar()">{{'CANCELAR' | translate }}</button>
+      <button mat-raised-button color="primary" (click)="onConfirm()">{{'OK' | translate }}</button>
+    </div>
+  }
+</mat-menu>

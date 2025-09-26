@@ -7,12 +7,13 @@ import { MatListOption, MatSelectionList } from '@angular/material/list';
 import { MatMenu, MatMenuTrigger } from '@angular/material/menu';
 import { TranslationPipe, TranslationService } from '@angulartoolsdr/translation';
 import { SafePipe } from '@angulartoolsdr/shared-utils';
+import { FormsModule } from '@angular/forms';
 
 @Component({
     selector: 'lib-selection-filter-data',
     templateUrl: './selection-filter-data.component.html',
     styleUrls: ['./selection-filter-data.component.css'],
-    imports: [MatIconButton, MatMenuTrigger, MatButton, MatBadge, MatIcon, MatMenu, MatDivider, MatSelectionList, MatListOption, TranslationPipe, SafePipe]
+    imports: [MatIconButton, MatMenuTrigger, MatButton, MatBadge, MatIcon, MatMenu, MatDivider, MatSelectionList, MatListOption, FormsModule, TranslationPipe, SafePipe]
 })
 export class SelectionFilterDataComponent {
   @Input() width = 'inherit';
