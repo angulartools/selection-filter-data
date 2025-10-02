@@ -53,7 +53,7 @@
 
     @if (loadList) {
       <mat-selection-list #selectable [(ngModel)]="selecionados" [multiple]="!disableClear">
-        @for (item of lista; track item) {
+        @for (item of lista; track item.id) {
           <mat-list-option togglePosition="before" [value]="item"
             (click)="selecionarItem(item, item.selected)" [disabled]="disabled">
             @if (item[campo] === undefined || item[campo] === null || item[campo] === '') {
