@@ -2,7 +2,6 @@ import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core
 import { MatBadge } from '@angular/material/badge';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatDivider } from '@angular/material/divider';
-import { MatIcon } from '@angular/material/icon';
 import { MatListOption, MatSelectionList } from '@angular/material/list';
 import { MatMenu, MatMenuTrigger } from '@angular/material/menu';
 import { TranslationPipe, TranslationService } from '@angulartoolsdr/translation';
@@ -10,10 +9,10 @@ import { SafePipe } from '@angulartoolsdr/shared-utils';
 import { FormsModule } from '@angular/forms';
 
 @Component({
-    selector: 'lib-selection-filter-data',
-    templateUrl: './selection-filter-data.component.html',
-    styleUrls: ['./selection-filter-data.component.css'],
-    imports: [MatIconButton, MatMenuTrigger, MatButton, MatBadge, MatIcon, MatMenu, MatDivider, MatSelectionList, MatListOption, FormsModule, TranslationPipe, SafePipe]
+  selector: 'lib-selection-filter-data',
+  templateUrl: './selection-filter-data.component.html',
+  styleUrls: ['./selection-filter-data.component.css'],
+  imports: [MatIconButton, MatMenuTrigger, MatButton, MatBadge, MatMenu, MatDivider, MatSelectionList, MatListOption, FormsModule, TranslationPipe, SafePipe]
 })
 export class SelectionFilterDataComponent {
   @Input() width = 'inherit';
@@ -95,7 +94,7 @@ export class SelectionFilterDataComponent {
   @ViewChild('selectable') selectable: MatSelectionList;
   @ViewChild(MatMenuTrigger) trigger: MatMenuTrigger;
 
-  constructor(protected translate: TranslationService){}
+  constructor(protected translate: TranslationService) { }
 
   openMenu() {
     if (this.trigger.menuOpen) {
@@ -122,7 +121,7 @@ export class SelectionFilterDataComponent {
     if (this.disabled) {
       return;
     }
-    if(!this.showButtons) {
+    if (!this.showButtons) {
       if (!this.multiple && !this.disableClear) {
         this.checkSelectList(false);
         if (oldValue) {
@@ -141,14 +140,14 @@ export class SelectionFilterDataComponent {
   }
 
   ordernarLista() {
-    this.lista = this.lista.sort((a,b) => (a[this.campo].toUpperCase() > b[this.campo].toUpperCase()) ? 1 : ((b[this.campo].toUpperCase() > a[this.campo].toUpperCase()) ? -1 : 0))
+    this.lista = this.lista.sort((a, b) => (a[this.campo].toUpperCase() > b[this.campo].toUpperCase()) ? 1 : ((b[this.campo].toUpperCase() > a[this.campo].toUpperCase()) ? -1 : 0))
 
     if (this.selectable.selectedOptions.selected.length > 0) {
       let listaOrdenada = this.selectable.selectedOptions.selected.map(x => x.value);
-      listaOrdenada = listaOrdenada.sort((a,b) => (a[this.campo].toUpperCase() > b[this.campo].toUpperCase()) ? 1 : ((b[this.campo].toUpperCase() > a[this.campo].toUpperCase()) ? -1 : 0))
+      listaOrdenada = listaOrdenada.sort((a, b) => (a[this.campo].toUpperCase() > b[this.campo].toUpperCase()) ? 1 : ((b[this.campo].toUpperCase() > a[this.campo].toUpperCase()) ? -1 : 0))
 
 
-      for(let i=0; i<this.lista.length; i++) {
+      for (let i = 0; i < this.lista.length; i++) {
         if (listaOrdenada.findIndex(x => x[this.campo] === this.lista[i][this.campo]) === -1) {
           listaOrdenada.push(this.lista[i]);
         }
@@ -167,7 +166,7 @@ export class SelectionFilterDataComponent {
         this.listaCompleta[j].selected = false;
       }
       const aSelecao = this.selectable.selectedOptions.selected.map(x => x.value[this.campo]);
-      for (let i = 0; i < aSelecao.length; i++ ) {
+      for (let i = 0; i < aSelecao.length; i++) {
         for (let j = 0; j < this.lista.length; j++) {
           if (this.lista[j][this.campo] === aSelecao[i]) {
             this.lista[j].selected = true;
@@ -281,17 +280,17 @@ export class SelectionFilterDataComponent {
     const semAcento = 'AAAAAAACEEEEIIIIDNOOOOOOUUUUYRsBaaaaaaaceeeeiiiionoooooouuuuybyr';
 
     let novastr = '';
-    for(let i=0; i<str.length; i++) {
-      let troca=false;
-      for (let a=0; a < comAcento.length; a++) {
-        if (str.substr(i,1) === comAcento.substr(a,1)) {
-          novastr += semAcento.substr(a,1);
-          troca=true;
+    for (let i = 0; i < str.length; i++) {
+      let troca = false;
+      for (let a = 0; a < comAcento.length; a++) {
+        if (str.substr(i, 1) === comAcento.substr(a, 1)) {
+          novastr += semAcento.substr(a, 1);
+          troca = true;
           break;
         }
       }
       if (!troca) {
-        novastr+=str.substr(i,1);
+        novastr += str.substr(i, 1);
       }
     }
     return novastr;
