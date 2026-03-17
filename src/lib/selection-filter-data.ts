@@ -10,11 +10,12 @@ import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'lib-selection-filter-data',
-  templateUrl: './selection-filter-data.component.html',
-  styleUrls: ['./selection-filter-data.component.css'],
+  templateUrl: './selection-filter-data.html',
+  styleUrls: ['./selection-filter-data.css'],
   imports: [MatIconButton, MatMenuTrigger, MatButton, MatBadge, MatMenu, MatDivider, MatSelectionList, MatListOption, FormsModule, TranslationPipe, SafePipe]
 })
-export class SelectionFilterDataComponent {
+export class SelectionFilterData {
+
   @Input() width = 'inherit';
   @Input() height = '300px';
   @Input() label = null;

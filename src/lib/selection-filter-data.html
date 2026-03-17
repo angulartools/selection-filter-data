@@ -1,13 +1,7 @@
-@if (multiple && selecionados.length === 0 && label === null) {
-  <button class="hover-primary xsmall-icon-button"
-    type="button" mat-icon-button [matMenuTriggerFor]="menu" [disabled]="disabled || listaCompleta?.length === 0" (click)="openMenu()">
-    <i style="font-size: 12px" class="fal fa-filter"></i>
-  </button>
-}
-@if (multiple && selecionados.length > 0  && label === null) {
-  <button class="hover-primary xsmall-icon-button" type="button" mat-icon-button
-    [matMenuTriggerFor]="menu" [disabled]="disabled || listaCompleta?.length === 0" (click)="openMenu()">
-    <i style="font-size: 12px" class="fas fa-filter"></i>
+@if (multiple && label === null) {
+  <button class="hover-primary xsmall-icon-button" type="button" mat-icon-button [matMenuTriggerFor]="menu"
+    [disabled]="disabled || listaCompleta?.length === 0" (click)="openMenu()">
+    <i style="font-size: 12px" [class]="selecionados.length > 0 ? 'fas fa-filter' : 'fal fa-filter'"></i>
   </button>
 }
 @if (label !== null) {
