@@ -33,7 +33,7 @@
     @if (multiple) {
       <mat-selection-list>
         @if (lista?.length > 1 && lista?.length <= maxMultipleSelected) {
-          <mat-list-option checkboxPosition="before"
+          <mat-list-option togglePosition="before"
             (click)="selecionarTodos()" [value]="''" [selected]="selectable?.selectedOptions?.selected?.length === lista?.length">
             <span style="font-weight: 600; font-size: .8rem;">{{'SELECIONAR_TODOS' | translate }}</span>
           </mat-list-option>

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { MatBadge } from '@angular/material/badge';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatDivider } from '@angular/material/divider';
@@ -12,6 +12,7 @@ import { FormsModule } from '@angular/forms';
   selector: 'lib-selection-filter-data',
   templateUrl: './selection-filter-data.html',
   styleUrls: ['./selection-filter-data.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [MatIconButton, MatMenuTrigger, MatButton, MatBadge, MatMenu, MatDivider, MatSelectionList, MatListOption, FormsModule, TranslationPipe, SafePipe]
 })
 export class SelectionFilterData {
@@ -29,7 +30,6 @@ export class SelectionFilterData {
   @Input() multiple = true;
   @Input() disabled = false;
   @Input() bindId = 'id';
-  @Input() filtroSelecionado = null;
   @Input() disableClear = false;
 
   @Input('lista')
