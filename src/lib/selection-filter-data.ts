@@ -11,7 +11,7 @@ import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'lib-selection-filter-data',
   templateUrl: './selection-filter-data.html',
-  styleUrls: ['./selection-filter-data.css'],
+  styleUrls: ['./selection-filter-data.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [MatIconButton, MatMenuTrigger, MatButton, MatBadge, MatMenu, MatDivider, MatSelectionList, MatListOption, FormsModule, TranslationPipe, SafePipe]
 })
