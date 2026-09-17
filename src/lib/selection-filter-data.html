@@ -6,18 +6,16 @@
 }
 @if (label !== null) {
   <button class="menuTrigger" type="button" mat-flat-button [matMenuTriggerFor]="menu" [disabled]="disabled || listaCompleta?.length === 0">
-    @if (label !== null) {
+    <span class="menu-trigger-label">
       <span matBadgeSize="small" [matBadgeHidden]="selecionados?.length === 0" [matBadge]="multiple ? selecionados?.length : null">{{label}}</span>
-    }
-    @if (label !== null) {
       <i class="fa fa-angle-down fa-xs"></i>
+    </span>
+    @if (!multiple && selecionados.length > 0) {
+      <span class="selected-option-label text-muted">
+        {{selecionados[0][campo] | translate}}
+      </span>
     }
   </button>
-}
-@if (!multiple && selecionados.length > 0) {
-  <div style="font-size: 12px; text-align: center; position: relative; top: -10px" class="text-muted">
-    {{selecionados[0][campo] | translate}}
-  </div>
 }
 
 <mat-menu #menu="matMenu" [style.width]="width">
