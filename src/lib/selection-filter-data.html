@@ -1,11 +1,12 @@
-@if (multiple && label === null) {
+@if (multiple && label == null) {
   <button class="hover-primary xsmall-icon-button" type="button" mat-icon-button [matMenuTriggerFor]="menu"
     [disabled]="disabled || listaCompleta?.length === 0" (click)="openMenu()">
     <i style="font-size: 12px" [class]="selecionados.length > 0 ? 'fas fa-filter' : 'fal fa-filter'"></i>
   </button>
 }
-@if (label !== null) {
-  <button class="menuTrigger" type="button" mat-flat-button [matMenuTriggerFor]="menu" [disabled]="disabled || listaCompleta?.length === 0">
+@if (label != null) {
+  <button class="menuTrigger" type="button" mat-flat-button [matMenuTriggerFor]="menu"
+    [disabled]="disabled || listaCompleta?.length === 0" (click)="openMenu()">
     <span class="menu-trigger-label">
       <span matBadgeSize="small" [matBadgeHidden]="selecionados?.length === 0" [matBadge]="multiple ? selecionados?.length : null">{{label}}</span>
       <i class="fa fa-angle-down fa-xs"></i>
@@ -32,7 +33,7 @@
       <mat-selection-list>
         @if (lista?.length > 1 && lista?.length <= maxMultipleSelected) {
           <mat-list-option togglePosition="before"
-            (click)="selecionarTodos()" [value]="''" [selected]="selectable?.selectedOptions?.selected?.length === lista?.length">
+            (click)="selecionarTodos()" [value]="''" [selected]="isAllSelected()">
             <span style="font-weight: 600; font-size: .8rem;">{{'SELECIONAR_TODOS' | translate }}</span>
           </mat-list-option>
         }
@@ -44,27 +45,31 @@
     }
 
     @if (loadList) {
-      <mat-selection-list #selectable [(ngModel)]="selecionados" [multiple]="!disableClear">
-        @for (item of lista; track item.id) {
-          <mat-list-option togglePosition="before" [value]="item"
+      <mat-selection-list #selectable [multiple]="!disableClear">
+        @for (item of lista; track (item[bindId] ?? item.id ?? item[campo] ?? $index)) {
+          <mat-list-option togglePosition="before" [value]="item" [selected]="item.selected"
+            [style.padding-left]="item[fieldNivel] != null ? item[fieldNivel] * 18 + 'px' : null"
             (click)="selecionarItem(item, item.selected)" [disabled]="disabled">
-            @if (item[campo] === undefined || item[campo] === null || item[campo] === '') {
+            @if (item[campo] == null || item[campo] === '') {
               <span style="font-size: .8rem;">- {{'EM_BRANCO' | translate }} -</span>
             }
-            @if (item[campo] !== undefined && item[campo] !== null && item[campo] !== '' &&
-              (item.tipo === undefined || item.tipo === null) &&
-              (!item.translate)) {
+            @if (item[campo] != null && item[campo] !== '' && (item.tipo == null) && (!item.translate)) {
               <span style="font-size: .8rem;">
                 {{item[campo] | translate }}
               </span>
             }
-            @if (item.tipo === 'html' && item[campo] !== undefined && item[campo] !== null && item[campo] !== '') {
+            @if (item.tipo === 'html' && item[campo] != null && item[campo] !== '') {
               <span [innerHTML]="item[campo] | safe: 'html'"></span>
             }
-            @if (item.translate && item[campo] !== undefined && item[campo] !== null && item[campo] !== '') {
+            @if (item.translate && item[campo] != null && item[campo] !== '') {
               <span style="font-size: .8rem;">{{item[campo] | translate}}</span>
             }
           </mat-list-option>
+        }
+        @if (lista?.length === 0) {
+          <div style="font-size: .8rem; text-align: center; color: #888;">
+            {{'NENHUM_REGISTRO_ENCONTRADO' | translate}}
+          </div>
         }
       </mat-selection-list>
     }

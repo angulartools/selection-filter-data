@@ -31,27 +31,26 @@ export class SelectionFilterData {
   @Input() disabled = false;
   @Input() bindId = 'id';
   @Input() disableClear = false;
+  @Input() fieldHierarquico = '';
+  @Input() fieldNivel = '';
 
   @Input('lista')
   set _lista(value) {
     this.sFiltro = '';
-    value = value !== null && value !== undefined ? value : [];
+    value = value != null ? value : [];
     this.lista = value;
     const listaCompleta = [];
     this.lista.forEach(
       item => listaCompleta.push(item)
     );
     this.listaCompleta = listaCompleta;
-    this.selecionados = [];
-    if (this.allSelectedDefault && this.lista !== undefined && this.lista.length > 0) {
+    this.selecionados = this.listaCompleta.filter(x => x.selected);
+    if (this.allSelectedDefault && this.lista != null && this.lista.length > 0) {
       this.checkSelectList(true);
-      if (this.returnObject) {
-        this.selecionados = Object.assign([], this.lista);
-      } else {
-        this.selecionados = Object.assign([], this.lista.map(x => x[this.campo]));
-      }
+      this.selecionados = Object.assign([], this.listaCompleta);
     } else if (this.lista?.length === 1 && this.onlySelectedDefault) {
       this.lista[0].selected = true;
+      this.listaCompleta[0].selected = true;
       this.selecionados = Object.assign([], this.lista);
       if (!this.returnObject) {
         this.selectedOptions.emit(this.selecionados[0][this.campo]);
@@ -65,19 +64,20 @@ export class SelectionFilterData {
   // Apenas um registro
   @Input('filtroSelecionado')
   set _filtroSelecionado(value) {
-    if (value !== null && value !== undefined) {
-      if (this.lista !== undefined && this.lista !== null) {
+    if (value != null && this.lista != null) {
+      // Limpa a lista
+      this.checkSelectList(false);
 
-        // Limpa a lista
-        this.checkSelectList(false);
-
-        // Seleciona o registro
-        for (let i = 0; i < this.lista.length; i++) {
-          if (this.lista[i][this.bindId] === value[this.bindId]) {
-            this.lista[i].selected = true;
-            this.selecionados = [this.lista[i]];
-            break;
+      // Seleciona o registro
+      for (let i = 0; i < this.lista.length; i++) {
+        if (this.lista[i][this.bindId] === value[this.bindId]) {
+          this.lista[i].selected = true;
+          const comp = this.listaCompleta.find(x => (x[this.bindId] ?? x.id) === (value[this.bindId] ?? value.id));
+          if (comp) {
+            comp.selected = true;
           }
+          this.selecionados = [this.lista[i]];
+          break;
         }
       }
     }
@@ -98,8 +98,8 @@ export class SelectionFilterData {
   constructor(protected translate: TranslationService) { }
 
   openMenu() {
-    if (this.trigger.menuOpen) {
-      this.preSelecionados = this.lista?.filter(x => x.selected);
+    if (this.trigger?.menuOpen) {
+      this.preSelecionados = (this.listaCompleta || []).filter(x => x.selected).map(x => ({ ...x }));
     }
   }
 
@@ -107,14 +107,18 @@ export class SelectionFilterData {
     this.trigger.closeMenu();
   }
 
-  selecionarTodos() {
-    if (this.selectable.selectedOptions.selected.length < this.lista.length) {
-      this.checkSelectList(true);
-    } else {
-      this.checkSelectList(false);
+  isAllSelected(): boolean {
+    if (!this.lista || this.lista.length === 0) {
+      return false;
     }
+    return this.lista.every(x => x.selected);
+  }
+
+  selecionarTodos() {
+    const todosSelecionados = this.isAllSelected();
+    this.checkSelectList(!todosSelecionados);
     if (!this.showButtons) {
-      this.onConfirm();
+      this.onConfirm(false);
     }
   }
 
@@ -122,64 +126,58 @@ export class SelectionFilterData {
     if (this.disabled) {
       return;
     }
-    if (!this.showButtons) {
-      if (!this.multiple && !this.disableClear) {
+    const novoValor = !oldValue;
+    if (this.multiple) {
+      item.selected = novoValor;
+      const comp = this.listaCompleta.find(x => (x[this.bindId] ?? x.id) === (item[this.bindId] ?? item.id));
+      if (comp) {
+        comp.selected = novoValor;
+      }
+      this.selecionados = this.listaCompleta.filter(x => x.selected);
+      if (!this.showButtons) {
+        this.onConfirm(false);
+      }
+    } else {
+      if (!this.disableClear && oldValue) {
         this.checkSelectList(false);
-        if (oldValue) {
-          item.selected = false;
-          this.selecionados = [];
-        } else {
-          item.selected = true;
-          this.selecionados = [item];
+        item.selected = false;
+        const comp = this.listaCompleta.find(x => (x[this.bindId] ?? x.id) === (item[this.bindId] ?? item.id));
+        if (comp) {
+          comp.selected = false;
         }
-      } else if (this.disableClear) {
+        this.selecionados = [];
+      } else {
+        this.checkSelectList(false);
         item.selected = true;
+        const comp = this.listaCompleta.find(x => (x[this.bindId] ?? x.id) === (item[this.bindId] ?? item.id));
+        if (comp) {
+          comp.selected = true;
+        }
         this.selecionados = [item];
       }
-      this.onConfirm(false);
+      if (!this.showButtons) {
+        this.onConfirm(false);
+      }
     }
   }
 
   ordernarLista() {
-    this.lista = this.lista.sort((a, b) => (a[this.campo].toUpperCase() > b[this.campo].toUpperCase()) ? 1 : ((b[this.campo].toUpperCase() > a[this.campo].toUpperCase()) ? -1 : 0))
+    this.lista = this.lista.sort((a, b) => (a[this.campo]?.toUpperCase() > b[this.campo]?.toUpperCase()) ? 1 : ((b[this.campo]?.toUpperCase() > a[this.campo]?.toUpperCase()) ? -1 : 0));
 
-    if (this.selectable.selectedOptions.selected.length > 0) {
-      let listaOrdenada = this.selectable.selectedOptions.selected.map(x => x.value);
-      listaOrdenada = listaOrdenada.sort((a, b) => (a[this.campo].toUpperCase() > b[this.campo].toUpperCase()) ? 1 : ((b[this.campo].toUpperCase() > a[this.campo].toUpperCase()) ? -1 : 0))
-
-
+    const selecionadosDaLista = this.lista.filter(x => x.selected);
+    if (selecionadosDaLista.length > 0) {
+      let listaOrdenada = [...selecionadosDaLista];
       for (let i = 0; i < this.lista.length; i++) {
-        if (listaOrdenada.findIndex(x => x[this.campo] === this.lista[i][this.campo]) === -1) {
+        if (!listaOrdenada.some(x => (x[this.bindId] ?? x.id) === (this.lista[i][this.bindId] ?? this.lista[i].id))) {
           listaOrdenada.push(this.lista[i]);
         }
       }
-      this.lista = Object.assign([], listaOrdenada);
+      this.lista = listaOrdenada;
     }
   }
 
   onConfirm(close = true) {
     if (this.multiple) {
-      // Limpa selecao
-      for (let j = 0; j < this.lista.length; j++) {
-        this.lista[j].selected = false;
-      }
-      for (let j = 0; j < this.listaCompleta.length; j++) {
-        this.listaCompleta[j].selected = false;
-      }
-      const aSelecao = this.selectable.selectedOptions.selected.map(x => x.value[this.campo]);
-      for (let i = 0; i < aSelecao.length; i++) {
-        for (let j = 0; j < this.lista.length; j++) {
-          if (this.lista[j][this.campo] === aSelecao[i]) {
-            this.lista[j].selected = true;
-          }
-        }
-        for (let j = 0; j < this.listaCompleta.length; j++) {
-          if (this.listaCompleta[j][this.campo] === aSelecao[i]) {
-            this.listaCompleta[j].selected = true;
-          }
-        }
-      }
-      this.lista = Object.assign([], this.lista);
       this.selecionados = this.listaCompleta.filter(x => x.selected);
     }
     if (this.ordenarSelecionados) {
@@ -196,84 +194,120 @@ export class SelectionFilterData {
   }
 
   limparSelecao() {
-    this.selecionados = [];
-    if (this.selectable.selectedOptions.selected.length > 0) {
-      this.checkSelectList(false);
+    for (let i = 0; i < this.listaCompleta.length; i++) {
+      this.listaCompleta[i].selected = false;
     }
+    for (let i = 0; i < this.lista.length; i++) {
+      this.lista[i].selected = false;
+    }
+    if (this.selectable != null) {
+      this.selectable.deselectAll();
+    }
+    this.selecionados = [];
     this.loadList = false;
     setTimeout(() => {
       this.sFiltro = '';
       this.lista = this.listaCompleta;
-      this.loadList = true
-    }, 300)
+      this.loadList = true;
+    }, 300);
     this.selectedOptions.emit(this.multiple ? [] : null);
   }
 
   changeInput(event) {
     this.sFiltro = event?.target?.value;
-    if (this.sFiltro !== null && this.sFiltro !== undefined && this.sFiltro !== '') {
-      this.lista = this.listaCompleta?.filter(x => {
-        if (typeof x[this.campo] === 'string') {
-          if (x[this.campo] !== '') {
-            return this.removerAcento(this.translate.instant(x[this.campo])).toLowerCase().indexOf(this.removerAcento(this.sFiltro).toLowerCase()) > -1
-          }
-        } else {
-          if (x[this.campo] !== null) {
-            return x[this.campo].toString().indexOf(this.sFiltro) > -1
+
+    if (this.sFiltro != null && this.sFiltro !== '') {
+      const filtroFormatado = this.removerAcento(this.sFiltro).toLowerCase();
+
+      // 1. Encontra todos os itens que dão match direto com o texto digitado
+      const itensComMatchDireto = this.listaCompleta?.filter(x =>
+        this.checarValor(x[this.campo], filtroFormatado)
+      ) || [];
+
+      // 2. Cria um Set para armazenar os IDs de todos os itens válidos (matches + pais deles)
+      const idsValidos = new Set();
+
+      // Função auxiliar interna para subir na hierarquia adicionando os pais
+      const mapearAncestrais = (item) => {
+        if (!item) return;
+
+        idsValidos.add(item[this.bindId] ?? item.id);
+
+        if (this.fieldHierarquico && item[this.fieldHierarquico] != null) {
+          const idPai = item[this.fieldHierarquico]?.[this.bindId] ?? item[this.fieldHierarquico]?.id ?? item[this.fieldHierarquico];
+          const paiDoItem = this.listaCompleta.find(p => (p[this.bindId] ?? p.id) === idPai);
+          if (paiDoItem) {
+            mapearAncestrais(paiDoItem);
           }
         }
-        return null;
-      });
+      };
+
+      if (this.fieldHierarquico) {
+        itensComMatchDireto.forEach(item => mapearAncestrais(item));
+        this.lista = this.listaCompleta?.filter(x => idsValidos.has(x[this.bindId] ?? x.id));
+      } else {
+        this.lista = itensComMatchDireto;
+      }
     } else {
       this.lista = this.listaCompleta;
     }
   }
 
+  checarValor(valorCampo, filtroFormatado) {
+    if (valorCampo == null) return false;
+
+    if (typeof valorCampo === 'string') {
+      if (valorCampo !== '') {
+        const valorTraduzido = this.removerAcento(this.translate.instant(valorCampo)).toLowerCase();
+        return valorTraduzido.indexOf(filtroFormatado) > -1;
+      }
+    } else {
+      return valorCampo.toString().indexOf(filtroFormatado) > -1;
+    }
+
+    return false;
+  }
+
   cancelar() {
     this.loadList = false;
 
-    // Limpa a lista
-    this.checkSelectList(false);
-
-    // Seleciona os registros
-    let selecionados = [];
-    for (let i = 0; i < this.preSelecionados.length; i++) {
-      for (let j = 0; j < this.lista.length; j++) {
-        if (this.lista[j][this.campo] === this.preSelecionados[i][this.campo]) {
-          this.lista[j].selected = true;
-          selecionados.push(this.lista[j]);
-          break;
-        }
-      }
+    // Restaura o estado anterior a partir de preSelecionados
+    const preIds = new Set((this.preSelecionados || []).map(x => (x[this.bindId] ?? x.id)));
+    for (let j = 0; j < this.listaCompleta.length; j++) {
+      this.listaCompleta[j].selected = preIds.has(this.listaCompleta[j][this.bindId] ?? this.listaCompleta[j].id);
     }
-
-    this.selecionados = selecionados;
-    this.lista = Object.assign([], this.lista);
+    this.sFiltro = '';
+    this.lista = this.listaCompleta;
+    this.selecionados = this.listaCompleta.filter(x => x.selected);
 
     setTimeout(() => {
-      this.loadList = true
-    }, 300)
-
+      this.loadList = true;
+    }, 300);
 
     this.closeMenu();
   }
 
   checkSelectList(value) {
-    if (!value) {
+    if (!value && !this.sFiltro) {
       for (let i = 0; i < this.listaCompleta.length; i++) {
-        this.listaCompleta[i].selected = value;
+        this.listaCompleta[i].selected = false;
       }
     }
     for (let i = 0; i < this.lista.length; i++) {
       this.lista[i].selected = value;
+      const comp = this.listaCompleta.find(x => (x[this.bindId] ?? x.id) === (this.lista[i][this.bindId] ?? this.lista[i].id));
+      if (comp) {
+        comp.selected = value;
+      }
     }
-    if (this.selectable !== null && this.selectable !== undefined) {
+    if (this.selectable != null) {
       if (value) {
         this.selectable.selectAll();
       } else {
         this.selectable.deselectAll();
       }
     }
+    this.selecionados = this.listaCompleta.filter(x => x.selected);
   }
 
   removerAcento(str) {
