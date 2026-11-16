@@ -1,37 +1,37 @@
-@if (multiple && label == null) {
+@if (multiple() && label() == null) {
   <button class="hover-primary xsmall-icon-button" type="button" mat-icon-button [matMenuTriggerFor]="menu"
-    [disabled]="disabled || listaCompleta?.length === 0" (click)="openMenu()">
+    [disabled]="disabled() || listaCompleta?.length === 0" (click)="openMenu()">
     <i style="font-size: 12px" [class]="selecionados.length > 0 ? 'fas fa-filter' : 'fal fa-filter'"></i>
   </button>
 }
-@if (label != null) {
+@if (label() != null) {
   <button class="menuTrigger" type="button" mat-flat-button [matMenuTriggerFor]="menu"
-    [disabled]="disabled || listaCompleta?.length === 0" (click)="openMenu()">
+    [disabled]="disabled() || listaCompleta?.length === 0" (click)="openMenu()">
     <span class="menu-trigger-label">
-      <span matBadgeSize="small" [matBadgeHidden]="selecionados?.length === 0" [matBadge]="multiple ? selecionados?.length : null">{{label}}</span>
+      <span matBadgeSize="small" [matBadgeHidden]="selecionados?.length === 0" [matBadge]="multiple() ? selecionados?.length : null">{{label()}}</span>
       <i class="fa fa-angle-down fa-xs"></i>
     </span>
-    @if (!multiple && selecionados.length > 0) {
+    @if (!multiple() && selecionados.length > 0) {
       <span class="selected-option-label text-muted">
-        {{selecionados[0][campo] | translate}}
+        {{selecionados[0][campo()] | translate}}
       </span>
     }
   </button>
 }
 
-<mat-menu #menu="matMenu" [style.width]="width">
-  <div [style.width]="width" [style.max-height]="height" style="overflow: auto" (click)="$event.stopPropagation();">
+<mat-menu #menu="matMenu" [style.width]="width()">
+  <div [style.width]="width()" [style.max-height]="height()" style="overflow: auto" (click)="$event.stopPropagation();">
 
-    <span [style.width]="width">
+    <span [style.width]="width()">
       <input style="width: 100%;" class="pesquisaLista" placeholder="{{'PESQUISAR_LISTA' | translate }}"
-        [(value)]="sFiltro" (keyup)="changeInput($event)" />
+        [value]="sFiltro" (input)="changeInput($event)" />
     </span>
 
     <mat-divider></mat-divider>
 
-    @if (multiple) {
+    @if (multiple()) {
       <mat-selection-list>
-        @if (lista?.length > 1 && lista?.length <= maxMultipleSelected) {
+        @if (lista?.length > 1 && lista?.length <= maxMultipleSelected()) {
           <mat-list-option togglePosition="before"
             (click)="selecionarTodos()" [value]="''" [selected]="isAllSelected()">
             <span style="font-weight: 600; font-size: .8rem;">{{'SELECIONAR_TODOS' | translate }}</span>
@@ -40,29 +40,29 @@
       </mat-selection-list>
     }
 
-    @if (multiple) {
+    @if (multiple()) {
       <mat-divider></mat-divider>
     }
 
     @if (loadList) {
-      <mat-selection-list #selectable [multiple]="!disableClear">
-        @for (item of lista; track (item[bindId] ?? item.id ?? item[campo] ?? $index)) {
+      <mat-selection-list #selectable [multiple]="!disableClear()">
+        @for (item of lista; track (item[bindId()] ?? item.id ?? item[campo()] ?? $index)) {
           <mat-list-option togglePosition="before" [value]="item" [selected]="item.selected"
-            [style.padding-left]="item[fieldNivel] != null ? item[fieldNivel] * 18 + 'px' : null"
-            (click)="selecionarItem(item, item.selected)" [disabled]="disabled">
-            @if (item[campo] == null || item[campo] === '') {
+            [style.padding-left]="item[fieldNivel()] != null ? item[fieldNivel()] * 18 + 'px' : null"
+            (click)="selecionarItem(item, item.selected)" [disabled]="disabled()">
+            @if (item[campo()] == null || item[campo()] === '') {
               <span style="font-size: .8rem;">- {{'EM_BRANCO' | translate }} -</span>
             }
-            @if (item[campo] != null && item[campo] !== '' && (item.tipo == null) && (!item.translate)) {
+            @if (item[campo()] != null && item[campo()] !== '' && (item.tipo == null) && (!item.translate)) {
               <span style="font-size: .8rem;">
-                {{item[campo] | translate }}
+                {{item[campo()] | translate }}
               </span>
             }
-            @if (item.tipo === 'html' && item[campo] != null && item[campo] !== '') {
-              <span [innerHTML]="item[campo] | safe: 'html'"></span>
+            @if (item.tipo === 'html' && item[campo()] != null && item[campo()] !== '') {
+              <span [innerHTML]="item[campo()] | safe: 'html'"></span>
             }
-            @if (item.translate && item[campo] != null && item[campo] !== '') {
-              <span style="font-size: .8rem;">{{item[campo] | translate}}</span>
+            @if (item.translate && item[campo()] != null && item[campo()] !== '') {
+              <span style="font-size: .8rem;">{{item[campo()] | translate}}</span>
             }
           </mat-list-option>
         }
@@ -74,10 +74,10 @@
       </mat-selection-list>
     }
   </div>
-  @if (showButtons && listaCompleta?.length > 0) {
+  @if (showButtons() && listaCompleta?.length > 0) {
     <mat-divider></mat-divider>
   }
-  @if (showButtons && listaCompleta?.length > 0) {
+  @if (showButtons() && listaCompleta?.length > 0) {
     <div style="width: 100%; display: flex; justify-content: space-between; padding: 3px;">
       <button mat-stroked-button color="accent" (click)="cancelar()">{{'CANCELAR' | translate }}</button>
       <button mat-raised-button color="primary" (click)="onConfirm()">{{'OK' | translate }}</button>

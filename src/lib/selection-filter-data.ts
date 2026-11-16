@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, effect, input, output, viewChild, inject } from '@angular/core';
 import { MatBadge } from '@angular/material/badge';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatDivider } from '@angular/material/divider';
@@ -6,38 +6,38 @@ import { MatListOption, MatSelectionList } from '@angular/material/list';
 import { MatMenu, MatMenuTrigger } from '@angular/material/menu';
 import { TranslationPipe, TranslationService } from '@angulartoolsdr/translation';
 import { SafePipe } from '@angulartoolsdr/shared-utils';
-import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'lib-selection-filter-data',
   templateUrl: './selection-filter-data.html',
-  styleUrls: ['./selection-filter-data.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [MatIconButton, MatMenuTrigger, MatButton, MatBadge, MatMenu, MatDivider, MatSelectionList, MatListOption, FormsModule, TranslationPipe, SafePipe]
+  styleUrl: './selection-filter-data.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [MatIconButton, MatMenuTrigger, MatButton, MatBadge, MatMenu, MatDivider, MatSelectionList, MatListOption, TranslationPipe, SafePipe]
 })
 export class SelectionFilterData {
 
-  @Input() width = 'inherit';
-  @Input() height = '300px';
-  @Input() label = null;
-  @Input() campo = 'nome';
-  @Input() returnObject = true;
-  @Input() ordenarSelecionados = false;
-  @Input() showButtons = true;
-  @Input() allSelectedDefault = false;
-  @Input() onlySelectedDefault = false;
-  @Input() maxMultipleSelected = 100;
-  @Input() multiple = true;
-  @Input() disabled = false;
-  @Input() bindId = 'id';
-  @Input() disableClear = false;
-  @Input() fieldHierarquico = '';
-  @Input() fieldNivel = '';
+  readonly width = input('inherit');
+  readonly height = input('300px');
+  readonly label = input<string | null>(null);
+  readonly campo = input('nome');
+  readonly returnObject = input(true);
+  readonly ordenarSelecionados = input(false);
+  readonly showButtons = input(true);
+  readonly allSelectedDefault = input(false);
+  readonly onlySelectedDefault = input(false);
+  readonly maxMultipleSelected = input(100);
+  readonly multiple = input(true);
+  readonly disabled = input(false);
+  readonly bindId = input('id');
+  readonly disableClear = input(false);
+  readonly fieldHierarquico = input('');
+  readonly fieldNivel = input('');
+  readonly listaInput = input<any[]>([], { alias: 'lista' });
+  readonly filtroSelecionadoInput = input<any>(null, { alias: 'filtroSelecionado' });
 
-  @Input('lista')
-  set _lista(value) {
+  private readonly listaEffect = effect(() => {
+    const value = this.listaInput() ?? [];
     this.sFiltro = '';
-    value = value != null ? value : [];
     this.lista = value;
     const listaCompleta = [];
     this.lista.forEach(
@@ -45,34 +45,34 @@ export class SelectionFilterData {
     );
     this.listaCompleta = listaCompleta;
     this.selecionados = this.listaCompleta.filter(x => x.selected);
-    if (this.allSelectedDefault && this.lista != null && this.lista.length > 0) {
+    if (this.allSelectedDefault() && this.lista.length > 0) {
       this.checkSelectList(true);
       this.selecionados = Object.assign([], this.listaCompleta);
-    } else if (this.lista?.length === 1 && this.onlySelectedDefault) {
+    } else if (this.lista.length === 1 && this.onlySelectedDefault()) {
       this.lista[0].selected = true;
       this.listaCompleta[0].selected = true;
       this.selecionados = Object.assign([], this.lista);
-      if (!this.returnObject) {
-        this.selectedOptions.emit(this.selecionados[0][this.campo]);
+      if (!this.returnObject()) {
+        this.selectedOptions.emit(this.selecionados[0][this.campo()]);
       } else {
         this.selectedOptions.emit(this.selecionados[0]);
       }
     }
     this.loadList = true;
-  }
+  });
 
-  // Apenas um registro
-  @Input('filtroSelecionado')
-  set _filtroSelecionado(value) {
+  private readonly filtroSelecionadoEffect = effect(() => {
+    const value = this.filtroSelecionadoInput();
+    this.listaInput();
     if (value != null && this.lista != null) {
       // Limpa a lista
       this.checkSelectList(false);
 
       // Seleciona o registro
       for (let i = 0; i < this.lista.length; i++) {
-        if (this.lista[i][this.bindId] === value[this.bindId]) {
+        if (this.lista[i][this.bindId()] === value[this.bindId()]) {
           this.lista[i].selected = true;
-          const comp = this.listaCompleta.find(x => (x[this.bindId] ?? x.id) === (value[this.bindId] ?? value.id));
+          const comp = this.listaCompleta.find(x => (x[this.bindId()] ?? x.id) === (value[this.bindId()] ?? value.id));
           if (comp) {
             comp.selected = true;
           }
@@ -81,7 +81,7 @@ export class SelectionFilterData {
         }
       }
     }
-  }
+  });
 
   sFiltro = '';
   preSelecionados;
@@ -90,21 +90,21 @@ export class SelectionFilterData {
   lista = [];
   listaCompleta = [];
 
-  @Output() selectedOptions: EventEmitter<any> = new EventEmitter<any>();
+  readonly selectedOptions = output<any>();
 
-  @ViewChild('selectable') selectable: MatSelectionList;
-  @ViewChild(MatMenuTrigger) trigger: MatMenuTrigger;
+  readonly selectable = viewChild<MatSelectionList>('selectable');
+  readonly trigger = viewChild(MatMenuTrigger);
 
-  constructor(protected translate: TranslationService) { }
+  protected translate = inject(TranslationService);
 
   openMenu() {
-    if (this.trigger?.menuOpen) {
-      this.preSelecionados = (this.listaCompleta || []).filter(x => x.selected).map(x => ({ ...x }));
-    }
+    // The click handler runs before MatMenuTrigger opens the menu. Snapshot the
+    // committed selection unconditionally so Cancel can always restore it.
+    this.preSelecionados = (this.listaCompleta || []).filter(x => x.selected).map(x => ({ ...x }));
   }
 
   closeMenu() {
-    this.trigger.closeMenu();
+    this.trigger()?.closeMenu();
   }
 
   isAllSelected(): boolean {
@@ -117,31 +117,31 @@ export class SelectionFilterData {
   selecionarTodos() {
     const todosSelecionados = this.isAllSelected();
     this.checkSelectList(!todosSelecionados);
-    if (!this.showButtons) {
+    if (!this.showButtons()) {
       this.onConfirm(false);
     }
   }
 
   selecionarItem(item, oldValue) {
-    if (this.disabled) {
+    if (this.disabled()) {
       return;
     }
     const novoValor = !oldValue;
-    if (this.multiple) {
+    if (this.multiple()) {
       item.selected = novoValor;
-      const comp = this.listaCompleta.find(x => (x[this.bindId] ?? x.id) === (item[this.bindId] ?? item.id));
+      const comp = this.listaCompleta.find(x => (x[this.bindId()] ?? x.id) === (item[this.bindId()] ?? item.id));
       if (comp) {
         comp.selected = novoValor;
       }
       this.selecionados = this.listaCompleta.filter(x => x.selected);
-      if (!this.showButtons) {
+      if (!this.showButtons()) {
         this.onConfirm(false);
       }
     } else {
-      if (!this.disableClear && oldValue) {
+      if (!this.disableClear() && oldValue) {
         this.checkSelectList(false);
         item.selected = false;
-        const comp = this.listaCompleta.find(x => (x[this.bindId] ?? x.id) === (item[this.bindId] ?? item.id));
+        const comp = this.listaCompleta.find(x => (x[this.bindId()] ?? x.id) === (item[this.bindId()] ?? item.id));
         if (comp) {
           comp.selected = false;
         }
@@ -149,26 +149,26 @@ export class SelectionFilterData {
       } else {
         this.checkSelectList(false);
         item.selected = true;
-        const comp = this.listaCompleta.find(x => (x[this.bindId] ?? x.id) === (item[this.bindId] ?? item.id));
+        const comp = this.listaCompleta.find(x => (x[this.bindId()] ?? x.id) === (item[this.bindId()] ?? item.id));
         if (comp) {
           comp.selected = true;
         }
         this.selecionados = [item];
       }
-      if (!this.showButtons) {
+      if (!this.showButtons()) {
         this.onConfirm(false);
       }
     }
   }
 
   ordernarLista() {
-    this.lista = this.lista.sort((a, b) => (a[this.campo]?.toUpperCase() > b[this.campo]?.toUpperCase()) ? 1 : ((b[this.campo]?.toUpperCase() > a[this.campo]?.toUpperCase()) ? -1 : 0));
+    this.lista = this.lista.sort((a, b) => (a[this.campo()]?.toUpperCase() > b[this.campo()]?.toUpperCase()) ? 1 : ((b[this.campo()]?.toUpperCase() > a[this.campo()]?.toUpperCase()) ? -1 : 0));
 
     const selecionadosDaLista = this.lista.filter(x => x.selected);
     if (selecionadosDaLista.length > 0) {
       let listaOrdenada = [...selecionadosDaLista];
       for (let i = 0; i < this.lista.length; i++) {
-        if (!listaOrdenada.some(x => (x[this.bindId] ?? x.id) === (this.lista[i][this.bindId] ?? this.lista[i].id))) {
+        if (!listaOrdenada.some(x => (x[this.bindId()] ?? x.id) === (this.lista[i][this.bindId()] ?? this.lista[i].id))) {
           listaOrdenada.push(this.lista[i]);
         }
       }
@@ -177,19 +177,19 @@ export class SelectionFilterData {
   }
 
   onConfirm(close = true) {
-    if (this.multiple) {
+    if (this.multiple()) {
       this.selecionados = this.listaCompleta.filter(x => x.selected);
     }
-    if (this.ordenarSelecionados) {
+    if (this.ordenarSelecionados()) {
       this.ordernarLista();
     }
     if (close) {
       this.closeMenu();
     }
-    if (!this.returnObject) {
-      this.selectedOptions.emit(this.multiple ? this.selecionados.map(x => x[this.campo]) : (this.selecionados.length > 0 ? this.selecionados[0][this.campo] : null));
+    if (!this.returnObject()) {
+      this.selectedOptions.emit(this.multiple() ? this.selecionados.map(x => x[this.campo()]) : (this.selecionados.length > 0 ? this.selecionados[0][this.campo()] : null));
     } else {
-      this.selectedOptions.emit(this.multiple ? this.selecionados : (this.selecionados.length > 0 ? this.selecionados[0] : null));
+      this.selectedOptions.emit(this.multiple() ? this.selecionados : (this.selecionados.length > 0 ? this.selecionados[0] : null));
     }
   }
 
@@ -200,17 +200,12 @@ export class SelectionFilterData {
     for (let i = 0; i < this.lista.length; i++) {
       this.lista[i].selected = false;
     }
-    if (this.selectable != null) {
-      this.selectable.deselectAll();
-    }
+    this.selectable()?.deselectAll();
     this.selecionados = [];
-    this.loadList = false;
-    setTimeout(() => {
-      this.sFiltro = '';
-      this.lista = this.listaCompleta;
-      this.loadList = true;
-    }, 300);
-    this.selectedOptions.emit(this.multiple ? [] : null);
+    this.sFiltro = '';
+    this.lista = this.listaCompleta;
+    this.loadList = true;
+    this.selectedOptions.emit(this.multiple() ? [] : null);
   }
 
   changeInput(event) {
@@ -221,7 +216,7 @@ export class SelectionFilterData {
 
       // 1. Encontra todos os itens que dão match direto com o texto digitado
       const itensComMatchDireto = this.listaCompleta?.filter(x =>
-        this.checarValor(x[this.campo], filtroFormatado)
+        this.checarValor(x[this.campo()], filtroFormatado)
       ) || [];
 
       // 2. Cria um Set para armazenar os IDs de todos os itens válidos (matches + pais deles)
@@ -231,20 +226,20 @@ export class SelectionFilterData {
       const mapearAncestrais = (item) => {
         if (!item) return;
 
-        idsValidos.add(item[this.bindId] ?? item.id);
+        idsValidos.add(item[this.bindId()] ?? item.id);
 
-        if (this.fieldHierarquico && item[this.fieldHierarquico] != null) {
-          const idPai = item[this.fieldHierarquico]?.[this.bindId] ?? item[this.fieldHierarquico]?.id ?? item[this.fieldHierarquico];
-          const paiDoItem = this.listaCompleta.find(p => (p[this.bindId] ?? p.id) === idPai);
+        if (this.fieldHierarquico() && item[this.fieldHierarquico()] != null) {
+          const idPai = item[this.fieldHierarquico()]?.[this.bindId()] ?? item[this.fieldHierarquico()]?.id ?? item[this.fieldHierarquico()];
+          const paiDoItem = this.listaCompleta.find(p => (p[this.bindId()] ?? p.id) === idPai);
           if (paiDoItem) {
             mapearAncestrais(paiDoItem);
           }
         }
       };
 
-      if (this.fieldHierarquico) {
+      if (this.fieldHierarquico()) {
         itensComMatchDireto.forEach(item => mapearAncestrais(item));
-        this.lista = this.listaCompleta?.filter(x => idsValidos.has(x[this.bindId] ?? x.id));
+        this.lista = this.listaCompleta?.filter(x => idsValidos.has(x[this.bindId()] ?? x.id));
       } else {
         this.lista = itensComMatchDireto;
       }
@@ -269,20 +264,14 @@ export class SelectionFilterData {
   }
 
   cancelar() {
-    this.loadList = false;
-
     // Restaura o estado anterior a partir de preSelecionados
-    const preIds = new Set((this.preSelecionados || []).map(x => (x[this.bindId] ?? x.id)));
+    const preIds = new Set((this.preSelecionados || []).map(x => (x[this.bindId()] ?? x.id)));
     for (let j = 0; j < this.listaCompleta.length; j++) {
-      this.listaCompleta[j].selected = preIds.has(this.listaCompleta[j][this.bindId] ?? this.listaCompleta[j].id);
+      this.listaCompleta[j].selected = preIds.has(this.listaCompleta[j][this.bindId()] ?? this.listaCompleta[j].id);
     }
     this.sFiltro = '';
     this.lista = this.listaCompleta;
     this.selecionados = this.listaCompleta.filter(x => x.selected);
-
-    setTimeout(() => {
-      this.loadList = true;
-    }, 300);
 
     this.closeMenu();
   }
@@ -295,16 +284,16 @@ export class SelectionFilterData {
     }
     for (let i = 0; i < this.lista.length; i++) {
       this.lista[i].selected = value;
-      const comp = this.listaCompleta.find(x => (x[this.bindId] ?? x.id) === (this.lista[i][this.bindId] ?? this.lista[i].id));
+      const comp = this.listaCompleta.find(x => (x[this.bindId()] ?? x.id) === (this.lista[i][this.bindId()] ?? this.lista[i].id));
       if (comp) {
         comp.selected = value;
       }
     }
-    if (this.selectable != null) {
+    if (this.selectable() != null) {
       if (value) {
-        this.selectable.selectAll();
+        this.selectable()?.selectAll();
       } else {
-        this.selectable.deselectAll();
+        this.selectable()?.deselectAll();
       }
     }
     this.selecionados = this.listaCompleta.filter(x => x.selected);
